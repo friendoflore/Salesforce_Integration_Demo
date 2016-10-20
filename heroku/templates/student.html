@@ -1,0 +1,18 @@
+<!-- Defines drop down list of students -->
+<!-- From DB query, for student x, x[0] == student name, x[1] == student sfid, 
+		 x[2] == student instrument -->
+<div class="form-group">
+
+	<!-- Get request to book loads page to book a lesson. Teachers are matched by their
+			 authorization to teach the instrument matching the selected student. -->
+	<form name="getTeachersForm" id="getTeachersForm" method="get" action="/book">
+		<select class="form-control" name="student">
+			{% for x in students %}
+				<option value="{{ x }}">{{ x[0] }}</option>
+			{% endfor %}
+		</select>
+		<br />
+		<input class="form-control btn btn-primary" type="submit" value="See available teachers" />
+	</form>
+	
+</div>

@@ -1,0 +1,59 @@
+<!-- This template defines a form for submitting a request for a new lesson booking. -->
+
+<h2>Hello, {{ student[0] }}</h2>
+<h4>Book a lesson with one of the following teachers of {{ student[2] }}:</h4>
+
+<!-- This form submission requires the following:
+		 - student (sfid), teacher (sfid), room (sfid), lesson duration (number), 
+		   lesson datetime (datetime) 
+		 
+		 From DB query, for student or teacher x, x[0] == name, 
+		 x[1] == sfid, x[2] == instrument(s) -->
+<form name="lessonForm" id="lessonForm" method="post" action="/book">
+
+	<!-- Student and teachers are passed to server by sfid -->
+	<input class="form-control" type="hidden" name="student" value="{{ student[1] }}" />
+	<select class="form-control" name="teacher" required>
+		{% for x in teachers %}
+			<option value="{{ x[1] }}">{{ x[0] }}</option>
+		{% endfor %}
+	</select>
+	<br />
+
+	<!-- Lesson duration is passed by float value -->
+	<div class="btn-group" data-toggle="buttons">
+		<label class="btn btn-primary active">
+			<input type="radio" name="duration" value="1" autocomplete="off" checked>1 hr
+		</label>
+		<label class="btn btn-primary">
+			<input type="radio" name="duration" value="0.5" autocomplete="off">30 min
+		</label>
+	</div>
+
+	<br />
+	<br />
+
+	<!-- Lesson datetime interface by Bootstrap datetimepicker -->
+	<label>Scheduled Time:</label>
+	<div class="form-group">
+		<div class="input-group date" id="datetimepicker">
+			<input class="form-control" type="text" name="scheduledTime" required />
+			<span class="input-group-addon">
+				<span class="glyphicon glyphicon-calendar"></span>
+			</span>
+		</div>
+	</div>
+
+	<!-- Room is passed to server by sfid -->
+	<label>Room: </label>
+	<select class="form-control" name="room" required>
+		{% for x in rooms %}
+			<option value="{{ x[1] }}">{{ x[0] }}</option>
+		{% endfor %}
+	</select>
+
+	<br />
+	<br />
+	
+	<input class="form-control btn btn-primary" type="submit" value="Book Lesson">
+</form>

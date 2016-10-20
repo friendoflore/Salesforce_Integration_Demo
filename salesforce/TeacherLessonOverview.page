@@ -1,0 +1,19 @@
+<!-- Teacher page is designed for upcoming lesson viewing -->
+<apex:page sidebar="false" standardController="Teacher__c">
+    
+    <!-- Allow for easy, inline editing of teacher attributes -->
+    <apex:detail relatedList="false" inlineEdit="true"/>
+    
+    <!-- List all upcoming lessons and who they're with.
+		 Lessons have a teacher, a student, a room, and a datetime 
+   	-->
+    <apex:pageBlock title="Lessons">
+        <apex:pageBlockSection >
+            <apex:pageBlockTable value="{! Teacher__c.Lessons__r }" var="lesson">
+                <apex:column value="{! lesson.Student__c }" />
+                <apex:column value="{! lesson.Start_DateTime__c }" />
+                <apex:column value="{! lesson.Room__c }" />
+            </apex:pageBlockTable>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+</apex:page>

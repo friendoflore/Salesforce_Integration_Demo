@@ -1,0 +1,56 @@
+// This trigger sends either confirmation of a newly scheduled lesson or
+// a notification of a lesson cancellation.
+trigger LessonSchedule on Lesson__c (after insert, after delete) {
+	
+    // These variables take the place of template messages.
+    String student_message;
+    String teacher_message;
+    String message_subject;
+    
+    // Store the affected lesson (whether deleted or scheduled)
+    List<Lesson__c> LessonsChanged = new List<Lesson__c>();
+    if (Trigger.isInsert) {
+        LessonsChanged = Trigger.New;
+    } else {
+        LessonsChanged = Trigger.Old;
+    }
+    
+    // For all lessons added or deleted
+    for (Lesson__c L: LessonsChanged) {
+        
+        // Get all relevant student, teacher, and room data associated with the lesson
+        Student__c student = [SELECT Name,Email__c FROM Student__c WHERE (ID = :L.Student__c)];
+        Teacher__c teacher = [SELECT Name,Email__c FROM Teacher__c WHERE (ID = :L.Teacher__c)];
+        Room__c room = [SELECT Name FROM Room__c WHERE (ID = :L.Room__c)];
+
+        
+		// If new lesson was scheduled, send confirmation to student and teacher     
+        if (Trigger.isInsert) {
+            student_message = 'You have a lesson scheduled with ' + teacher.Name 
+                			  + ' for ' + L.Start_Datetime__c + '. Your lesson is in room ' 
+                              + Room.Name + '.';
+            teacher_message = 'You have a lesson scheduled with your student ' 
+                              + student.Name + ' for ' + L.Start_Datetime__c 
+                			  + '. Your lesson is in room ' + Room.Name + '.';
+            message_subject = 'Lesson Confirmation';
+        
+        // If lesson was deleted, send cancellation notice to student and teacher
+        } else {
+            student_message = 'Your lesson with ' + teacher.Name + ' scheduled for ' 
+                			  + L.Start_Datetime__c + ' has been cancelled.';
+            teacher_message = 'Your lesson with ' + student.Name + ' scheduled for ' 
+                			  + L.Start_Datetime__c + ' has been cancelled.';
+            message_subject = 'Lesson Cancellation';
+        }
+        
+        
+        // Use EmailUtility's static method to send plaintext emails.
+       	EmailUtility.sendMail(student.Email__c, message_subject, student_message);
+        EmailUtility.sendMail(teacher.Email__c, message_subject, teacher_message);
+        
+		// Log the change.
+        System.debug(message_subject +' has occurred between ' + teacher.Name 
+                     + ' (teacher) and '+ student.name + ' (student) for ' 
+                     + L.Start_Datetime__c);
+    }
+}
